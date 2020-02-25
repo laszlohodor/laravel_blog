@@ -21,7 +21,7 @@ class CreateBlogPost extends Migration
             $table->unsignedInteger('author_id');
             $table->timestamp('date_published');
             $table->string('banner_image');
-            $table->boolean('feature');
+            $table->boolean('featured');
             $table->boolean('enabled');
             $table->boolean('comments_enabled');
             $table->bigInteger('view');
