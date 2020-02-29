@@ -62,7 +62,7 @@ $factory->define(\App\Persistence\Model\Category::class, function (Faker $faker)
         'name' => $faker->text(45),
         'name_clean' => $faker->unique()->text(45),
         'enabled' => $faker->boolean(),
-        'created_at' => $faker->dateTime,
+        //'created_at' => $faker->dateTime,
     ];
 });
 

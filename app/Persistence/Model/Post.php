@@ -34,7 +34,7 @@ class Post extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function category() {
-        return $this->belongsToMany(Category::class, 'blog_post_to_category', 'post_id', 'category_id', Post::class);
+        return $this->belongsToMany(Category::class, 'blog_post_to_category', 'post_id', 'category_id');
     }
 
     /**

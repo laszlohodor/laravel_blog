@@ -5,6 +5,7 @@ namespace App\Persistence\Repository;
 
 
 use App\Persistence\Model\Post;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\Paginator;
 
 class EloquentPostRepository implements PostRepository
@@ -27,8 +28,8 @@ class EloquentPostRepository implements PostRepository
      */
     public function findAllPublic($page, $size)
     {
-        return
-            $this->model->query()
+        return $this->model
+            ->query()
             ->where(['enabled' => true])
             ->paginate($size, ['*'], 'page', $page);
     }
@@ -42,7 +43,9 @@ class EloquentPostRepository implements PostRepository
      */
     public function findAll($page, $size)
     {
-        // TODO: Implement findAll() method.
+        return $this->model
+            ->query()
+            ->paginate($size, ['*'], 'page', $page);
     }
 
     /**
@@ -96,14 +99,18 @@ class EloquentPostRepository implements PostRepository
     /**
      * Return posts given by the category name
      *
-     * @param $categoryName string the name of the category
+     * @param $slug string the name of the category
      * @param $page int current page number
      * @param $size int size of the page
      * @return Paginator
      */
-    public function findByCategory($categoryName, $page, $size)
+    public function findByCategory($slug, $page, $size)
     {
-        // TODO: Implement findByCategory() method.
+        return $this->model
+            ->query()
+            ->whereHas('category', function($query) use ($slug){
+                return $query->where(['name_clean' => $slug]);
+            })->paginate($size, ['*'], 'page', $page);
     }
 
     /**
@@ -122,14 +129,19 @@ class EloquentPostRepository implements PostRepository
     /**
      * Return posts given by the author name
      *
-     * @param $authorName string the name of the author
+     * @param $slug string the name of the author
      * @param $page int current page number
      * @param $size int size of the page
      * @return Paginator
      */
-    public function findByAuthor($authorName, $page, $size)
+    public function findByAuthor($slug, $page, $size)
     {
-        // TODO: Implement findByAuthor() method.
+        return $this->model
+            ->query()
+            ->where(['enabled' => true])
+            ->whereHas('author', function($query) use ($slug){
+                return $query->where(['display_name' => $slug]);
+            })->paginate($size, ['*'], 'page', $page);
     }
 
     /**
