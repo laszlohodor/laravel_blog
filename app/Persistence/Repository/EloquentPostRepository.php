@@ -108,6 +108,7 @@ class EloquentPostRepository implements PostRepository
     {
         return $this->model
             ->query()
+            ->where(['enabled' => true])
             ->whereHas('category', function($query) use ($slug){
                 return $query->where(['name_clean' => $slug]);
             })->paginate($size, ['*'], 'page', $page);

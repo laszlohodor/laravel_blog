@@ -196,10 +196,10 @@ class EloquentPostRepositoryTest extends TestCase
         //WHEN
         $actual = $this->underTest->findByCategory($nameClean, 1, 5);
         //THEN
-        $this->assertEquals($actual->isEmpty(), false);
+        $this->assertEquals($actual->isEmpty(), true);
         $this->assertEquals($actual->hasPages(), false);
         $this->assertEquals($actual->currentPage(), 1);
-        $this->assertEquals(count($actual->items()), 5);
+        $this->assertEquals(count($actual->items()), null);
     }
 
     /**
