@@ -166,11 +166,12 @@ class EloquentPostRepository implements PostRepository
      * Save a post instance. If it is already persisted then it performs an update.
      *
      * @param Post $post
-     * @return mixed
+     * @return Post
      */
     public function save(Post $post)
     {
-        // TODO: Implement save() method.
+        $post->save();
+        return $post;
     }
 
     /**
@@ -181,6 +182,9 @@ class EloquentPostRepository implements PostRepository
      */
     public function deleteById($id)
     {
-        // TODO: Implement deleteById() method.
+        $post = $this->findById($id);
+        if ($post != null) {
+            $post->delete();
+        }
     }
 }
