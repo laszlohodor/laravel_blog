@@ -105,7 +105,18 @@ class EloquentPostRepository implements PostRepository
      */
     public function findBySearch($search, $page, $limit)
     {
-        // TODO: Implement findBySearch() method.
+        return $this->model
+            ->query()
+            ->where(function($query) use ($search) {
+                $query
+                    ->whereHas('tags', $this->filterForTags($search))
+                    ->orWhereHas('category', $this->filterForCategories($search))
+                    ->orWhere('title', 'like', '%' . $search . '%')
+                    ->orWhere('article', 'like', '%' . $search . '%')
+                    ->orWhere('title_clean', 'like', '%' . $search . '%');
+            })
+            ->where(['enabled' => true])
+            ->paginate($limit, ['*'], 'page', $page);
     }
 
     /**
@@ -186,5 +197,29 @@ class EloquentPostRepository implements PostRepository
         if ($post != null) {
             $post->delete();
         }
+    }
+
+    /**
+     * @param $search
+     * @return \Closure
+     */
+    public function filterForTags($search): \Closure
+    {
+        return function ($query) use ($search) {
+            $query->where('tag_clean', 'like', '%' . $search . '%')
+                ->orwhere('tag', 'like', '%' . $search . '%');
+        };
+    }
+
+    /**
+     * @param $search
+     * @return \Closure
+     */
+    public function filterForCategories($search): \Closure
+    {
+        return function ($query) use ($search) {
+            $query->where('name', 'like', '%' . $search . '%')
+                ->orwhere('name_clean', 'like', '%' . $search . '%');
+        };
     }
 }

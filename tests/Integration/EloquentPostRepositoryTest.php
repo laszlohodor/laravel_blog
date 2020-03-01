@@ -431,6 +431,129 @@ class EloquentPostRepositoryTest extends TestCase
     }
 
     /**
+     * @test
+     */
+    public function findBySearch_should_return_enabled_posts_by_tag_clean()
+    {
+        //GIVEN
+        $tag = factory(Tag::class)->create(['tag_clean' => 'included']);
+        $this->createPostsForTags(5, true, [$tag]);
+        //WHEN
+        $actual = $this->underTest->findBySearch('inclu', 1, 5);
+        //THEN
+        $this->assertEquals($actual->isEmpty(), false);
+        $this->assertEquals($actual->hasPages(), false);
+        $this->assertEquals($actual->currentPage(), 1);
+        $this->assertEquals(count($actual->items()), 5);
+    }
+
+    /**
+     * @test
+     */
+    public function findBySearch_should_return_enabled_posts_by_tag_name()
+    {
+        //GIVEN
+        $tag = factory(Tag::class)->create(['tag' => 'included']);
+        $this->createPostsForTags(5, true, [$tag]);
+        //WHEN
+        $actual = $this->underTest->findBySearch('inclu', 1, 5);
+        //THEN
+        $this->assertEquals($actual->isEmpty(), false);
+        $this->assertEquals($actual->hasPages(), false);
+        $this->assertEquals($actual->currentPage(), 1);
+        $this->assertEquals(count($actual->items()), 5);
+    }
+
+    /**
+     * @test
+     */
+    public function findBySearch_should_return_enabled_posts_by_matching_category_name()
+    {
+        //GIVEN
+        $category = factory(Category::class)->create(['name' => 'included']);
+        $this->createPostsForCategories(5, true, [$category]);
+        //WHEN
+        $actual = $this->underTest->findBySearch('inclu', 1, 5);
+        //THEN
+        $this->assertEquals($actual->isEmpty(), false);
+        $this->assertEquals($actual->hasPages(), false);
+        $this->assertEquals($actual->currentPage(), 1);
+        $this->assertEquals(count($actual->items()), 5);
+    }
+
+    /**
+     * @test
+     */
+    public function findBySearch_should_return_enabled_posts_by_matching_category_name_clean()
+    {
+        //GIVEN
+        $category = factory(Category::class)->create(['name_clean' => 'included']);
+        $this->createPostsForCategories(5, true, [$category]);
+        //WHEN
+        $actual = $this->underTest->findBySearch('inclu', 1, 5);
+        //THEN
+        $this->assertEquals($actual->isEmpty(), false);
+        $this->assertEquals($actual->hasPages(), false);
+        $this->assertEquals($actual->currentPage(), 1);
+        $this->assertEquals(count($actual->items()), 5);
+    }
+
+    /**
+     * @test
+     */
+    public function findBySearch_should_return_enabled_posts_by_matching_title()
+    {
+        //GIVEN
+        $this->createPost(1, 'included', true);
+        $this->createPost(2, 'not included', false);
+        //WHEN
+        $actual = $this->underTest->findBySearch('inclu', 1, 5);
+        //THEN
+        $this->assertEquals($actual->isEmpty(), false);
+        $this->assertEquals($actual->hasPages(), false);
+        $this->assertEquals($actual->currentPage(), 1);
+        $this->assertEquals(count($actual->items()), 1);
+    }
+
+    /**
+     * @test
+     */
+    public function findBySearch_should_return_enabled_posts_by_matching_title_clean()
+    {
+        //GIVEN
+        $post = factory(Post::class)->make(['title_clean' => 'included', 'enabled' => true]);
+        $author = factory(Author::class)->create();
+        $post->author()->associate($author);
+        $post->save();
+        //WHEN
+        $actual = $this->underTest->findBySearch('inclu', 1, 5);
+        //THEN
+        $this->assertEquals($actual->isEmpty(), false);
+        $this->assertEquals($actual->hasPages(), false);
+        $this->assertEquals($actual->currentPage(), 1);
+        $this->assertEquals(count($actual->items()), 1);
+    }
+
+    /**
+     * @test
+     */
+    public function findBySearch_should_return_enabled_posts_by_matching_article()
+    {
+        //GIVEN
+        $post = factory(Post::class)->make(['article' => 'included', 'enabled' => true]);
+        $author = factory(Author::class)->create();
+        $post->author()->associate($author);
+        $post->save();
+        //WHEN
+        $actual = $this->underTest->findBySearch('inclu', 1, 5);
+        //THEN
+        $this->assertEquals($actual->isEmpty(), false);
+        $this->assertEquals($actual->hasPages(), false);
+        $this->assertEquals($actual->currentPage(), 1);
+        $this->assertEquals(count($actual->items()), 1);
+    }
+
+    /**
      * @param int $id
      * @param string $title
      * @param bool $enabled
