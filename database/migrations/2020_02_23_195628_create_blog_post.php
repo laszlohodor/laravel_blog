@@ -24,7 +24,7 @@ class CreateBlogPost extends Migration
             $table->boolean('featured');
             $table->boolean('enabled');
             $table->boolean('comments_enabled');
-            $table->bigInteger('view');
+            $table->bigInteger('views');
         });
     }
 

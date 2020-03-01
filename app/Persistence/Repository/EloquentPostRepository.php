@@ -53,11 +53,18 @@ class EloquentPostRepository implements PostRepository
      *
      * @param $slug string the slugified post title
      * @param $date string the date of the publish
-     * @return Post
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|object
      */
     public function findBySlugAndPublishedDate($slug, $date)
     {
-        // TODO: Implement findBySlugAndPublishedDate() method.
+        return $this->model
+                    ->query()
+                    ->where([
+                        'enabled' => true,
+                        'title_clean' => $slug,
+                        'date_published' => $date,
+                    ])
+                    ->first();
     }
 
     /**
@@ -75,11 +82,16 @@ class EloquentPostRepository implements PostRepository
      * Return the post viewed post in descending order
      *
      * @param $limit int the number of posts
-     * @return Post[]
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
      */
     public function findMostViewed($limit)
     {
-        // TODO: Implement findMostViewed() method.
+        return $this->model
+                    ->query()
+                    ->where(['enabled' => true])
+                    ->orderBy('views', 'DESC')
+                    ->limit($limit)
+                    ->get();
     }
 
     /**
@@ -117,14 +129,19 @@ class EloquentPostRepository implements PostRepository
     /**
      * Return posts given by the tag name
      *
-     * @param $tagName string the name of the tag
+     * @param $slug string the name of the tag
      * @param $page int current page number
      * @param $size int size of the page
      * @return Paginator
      */
-    public function findByTag($tagName, $page, $size)
+    public function findByTag($slug, $page, $size)
     {
-        // TODO: Implement findByTag() method.
+        return $this->model
+            ->query()
+            ->where(['enabled' => true])
+            ->whereHas('tags', function($query) use ($slug) {
+                return $query->where(['tag_clean' => $slug]);
+            })->paginate($size, ['*'], 'page', $page);
     }
 
     /**

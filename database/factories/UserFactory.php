@@ -36,7 +36,7 @@ $factory->define(\App\Persistence\Model\Post::class, function (Faker $faker) {
         'featured' => $faker->boolean(),
         'enabled' => $faker->boolean(),
         'comments_enabled' => $faker->boolean(),
-        'view' => $faker->numberBetween(),
+        'views' => $faker->numberBetween(),
     ];
 });
 

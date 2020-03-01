@@ -6,6 +6,7 @@ namespace Tests\Integration;
 use App\Persistence\Model\Author;
 use App\Persistence\Model\Category;
 use App\Persistence\Model\Post;
+use App\Persistence\Model\Tag;
 use App\Persistence\Repository\EloquentPostRepository;
 use App\Persistence\Repository\PostRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -122,7 +123,7 @@ class EloquentPostRepositoryTest extends TestCase
         $author = factory(Author::class)->create(['display_name' => $displayName]);
         $this->createPosts(5, true, $author);
         //WHEN
-        $actual = $this->underTest->findByAuthor($displayName, 1 , 10);
+        $actual = $this->underTest->findByAuthor($displayName, 1, 10);
         //THEN
         $this->assertEquals($actual->isEmpty(), false);
         $this->assertEquals($actual->hasPages(), false);
@@ -140,7 +141,7 @@ class EloquentPostRepositoryTest extends TestCase
         $author = factory(Author::class)->create(['display_name' => $displayName]);
         $this->createPosts(5, false, $author);
         //WHEN
-        $actual = $this->underTest->findByAuthor($displayName, 1 , 10);
+        $actual = $this->underTest->findByAuthor($displayName, 1, 10);
         //THEN
         $this->assertEquals($actual->isEmpty(), true);
         $this->assertEquals($actual->hasPages(), false);
@@ -158,7 +159,7 @@ class EloquentPostRepositoryTest extends TestCase
         $author = factory(Author::class)->create(['display_name' => $displayName]);
         $this->createPosts(5, false, $author);
         //WHEN
-        $actual = $this->underTest->findByAuthor('other', 1 , 10);
+        $actual = $this->underTest->findByAuthor('other', 1, 10);
         //THEN
         $this->assertEquals($actual->isEmpty(), true);
         $this->assertEquals($actual->hasPages(), false);
@@ -191,7 +192,7 @@ class EloquentPostRepositoryTest extends TestCase
     {
         //GIVEN
         $nameClean = 'included';
-        $category = factory(Category::class)->create(['name_clean' =>  $nameClean]);
+        $category = factory(Category::class)->create(['name_clean' => $nameClean]);
         $this->createPostsForCategories(5, false, [$category]);
         //WHEN
         $actual = $this->underTest->findByCategory($nameClean, 1, 5);
@@ -227,7 +228,7 @@ class EloquentPostRepositoryTest extends TestCase
         //GIVEN
         $category = factory(Category::class)->create(['name_clean' => 'included']);
         $otherCategory = factory(Category::class)->create(['name_clean' => 'not included']);
-        $this->createPostsForCategories(5, true,[$category, $otherCategory]);
+        $this->createPostsForCategories(5, true, [$category, $otherCategory]);
         //WHEN
         $actual = $this->underTest->findByCategory('included', 1, 5);
         //THEN
@@ -238,13 +239,134 @@ class EloquentPostRepositoryTest extends TestCase
     }
 
     /**
+     * @test
+     */
+    public function findByTag_should_return_enabled_post_for_tag()
+    {
+        //GIVEN
+        $tag = factory(Tag::class)->create(['tag_clean' => 'included']);
+        $this->createPostsForTags(5, true, [$tag]);
+        //WHEN
+        $actual = $this->underTest->findByTag('included', 1, 5);
+        //THEN
+        $this->assertEquals($actual->isEmpty(), false);
+        $this->assertEquals($actual->hasPages(), false);
+        $this->assertEquals($actual->currentPage(), 1);
+        $this->assertEquals(count($actual->items()), 5);
+    }
+
+    /**
+     * @test
+     */
+    public function findByTag_should_return_disabled_post_for_tag()
+    {
+        //GIVEN
+        $tag = factory(Tag::class)->create(['tag_clean' => 'included']);
+        $this->createPostsForTags(5, false, [$tag]);
+        //WHEN
+        $actual = $this->underTest->findByTag('included', 1, 5);
+        //THEN
+        $this->assertEquals($actual->isEmpty(), true);
+        $this->assertEquals($actual->hasPages(), false);
+        $this->assertEquals($actual->currentPage(), 1);
+        $this->assertEquals(count($actual->items()), null);
+    }
+
+    /**
+     * @test
+     */
+    public function findByTag_should_not_return_other_tags_post()
+    {
+        //GIVEN
+        $tag = factory(Tag::class)->create(['tag_clean' => 'not included']);
+        $this->createPostsForTags(5, true, [$tag]);
+        //WHEN
+        $actual = $this->underTest->findByTag('included', 1, 5);
+        //THEN
+        $this->assertEquals($actual->isEmpty(), true);
+        $this->assertEquals($actual->hasPages(), false);
+        $this->assertEquals($actual->currentPage(), 1);
+        $this->assertEquals(count($actual->items()), null);
+    }
+
+    /**
+     * @test
+     */
+    public function findByTag_should_not_interfere_with_other_tags()
+    {
+        //GIVEN
+        $tag = factory(Tag::class)->create(['tag_clean' => 'included']);
+        $notIncludedTag = factory(Tag::class)->create(['tag_clean' => 'not included']);
+        $this->createPostsForTags(5, true, [$tag, $notIncludedTag]);
+        //WHEN
+        $actual = $this->underTest->findByTag('included', 1, 5);
+        //THEN
+        $this->assertEquals($actual->isEmpty(), false);
+        $this->assertEquals($actual->hasPages(), false);
+        $this->assertEquals($actual->currentPage(), 1);
+        $this->assertEquals(count($actual->items()), 5);
+    }
+
+    /**
+     * @test
+     */
+    public function findBySlugAndPublishedDate_should_return_enabled_post_by_date_and_slug()
+    {
+        //GIVEN
+        $post = factory(Post::class)->make(['title_clean' => 'test', 'enabled' => true, 'date_published' => '2020-01-01']);
+        $author = factory(Author::class)->create();
+        $post->author()->associate($author);
+        $post->save();
+        //WHEN
+        $actual = $this->underTest->findBySlugAndPublishedDate('test', '2020-01-01');
+        //THEN
+        $this->assertEquals('test', $actual->title_clean);
+    }
+
+    /**
+     * @test
+     */
+    public function findBySlugAndPublishedDate_should_not_return_disabled_post_by_date_and_slug()
+    {
+        //GIVEN
+        $post = factory(Post::class)->make(['title_clean' => 'test', 'enabled' => false, 'date_published' => '2020-01-01']);
+        $author = factory(Author::class)->create();
+        $post->author()->associate($author);
+        $post->save();
+        //WHEN
+        $actual = $this->underTest->findBySlugAndPublishedDate('test', '2020-01-01');
+        //THEN
+        $this->assertNull($actual);
+    }
+
+    /**
+     * @test
+     */
+    public function findMostViewed_should_return_most_viewed_enabled_posts_in_an_array()
+    {
+        //GIVEN
+        $this->createPost(1, 'last', true, 1);
+        $this->createPost(2, 'middle', true, 5);
+        $this->createPost(3, 'desabled', false, 5);
+        $this->createPost(4, 'first', true, 10);
+        //WHEN
+        $actual = $this->underTest->findMostViewed(3);
+        //THEN
+        $this->assertEquals(10, $actual[0]->views);
+        $this->assertEquals(5, $actual[1]->views);
+        $this->assertEquals('middle', $actual[1]->title);
+        $this->assertEquals(1, $actual[2]->views);
+    }
+
+    /**
      * @param int $id
      * @param string $title
      * @param bool $enabled
+     * @param int $views
      */
-    private function createPost(int $id, string $title, bool $enabled): void
+    private function createPost(int $id, string $title, bool $enabled, $views = 1): void
     {
-        $post = factory(Post::class)->make(["id" => $id, "title" => $title, "enabled" => $enabled]);
+        $post = factory(Post::class)->make(["id" => $id, "title" => $title, "enabled" => $enabled, 'views' => $views]);
         $author = factory(Author::class)->create();
         $post->author()->associate($author);
         $post->save();
@@ -269,13 +391,23 @@ class EloquentPostRepositoryTest extends TestCase
     /**
      * @param array $categories
      */
-    public function createPostsForCategories($count, $enabled, array $categories): void
+    private function createPostsForCategories($count, $enabled, array $categories): void
     {
         $author = factory(Author::class)->create();
         factory(Post::class, $count)->make(['enabled' => $enabled])->each(function (Post $post) use ($author, $categories) {
             $post->author()->associate($author);
             $post->save();
             $post->category()->saveMany($categories);
+        });
+    }
+
+    private function createPostsForTags($count, $enabled, array $tags)
+    {
+        $author = factory(Author::class)->create();
+        factory(Post::class, $count)->make(['enabled' => $enabled])->each(function (Post $post) use ($author, $tags) {
+            $post->author()->associate($author);
+            $post->save();
+            $post->tags()->saveMany($tags);
         });
     }
 }

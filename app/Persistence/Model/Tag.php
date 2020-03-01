@@ -10,9 +10,9 @@ class Tag extends Model
     public $timestamps = null;
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function posts() {
-        return $this->belongsTo(Post::class, 'post_id', 'id', Table::class);
+        return $this->belongsToMany(Post::class, 'blog_post_to_tag', 'tag_id', 'post_id');
     }
 }
