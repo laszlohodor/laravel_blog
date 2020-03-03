@@ -68,32 +68,32 @@ interface PostRepository
     /**
      * Return posts given by the category name
      *
-     * @param $categoryName string the name of the category
+     * @param $slug string the name of the category
      * @param $page int current page number
      * @param $size int size of the page
      * @return Paginator
      */
-    public function findByCategory($categoryName, $page, $size);
+    public function findByCategory($slug, $page, $size);
 
     /**
      * Return posts given by the tag name
      *
-     * @param $tagName string the name of the tag
+     * @param $slug string the name of the tag
      * @param $page int current page number
      * @param $size int size of the page
      * @return Paginator
      */
-    public function findByTag($tagName, $page, $size);
+    public function findByTag($slug, $page, $size);
 
     /**
      * Return posts given by the author name
      *
-     * @param $authorName string the name of the author
+     * @param $slug string the name of the author
      * @param $page int current page number
      * @param $size int size of the page
      * @return Paginator
      */
-    public function findByAuthor($authorName, $page, $size);
+    public function findByAuthor($slug, $page, $size);
 
     /**
      * Save a post instance. If it is already persisted then it performs an update.
