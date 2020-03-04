@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Persistence\Model\Post;
 use App\Persistence\Repository\CachingPostRepositoryDecorator;
 use App\Persistence\Repository\PostRepository;
 use Illuminate\Cache\Repository;
@@ -271,5 +272,163 @@ class CachingPostRepositoryDecoratorTest extends TestCase
         $actual = $this->underTest->findByTag($tag, $page, $size);
         //THEN
         $this->assertEquals($expectedResults, $actual);
+    }
+
+    /**
+     * @test
+     */
+    public function findByAuthor_should_return_cache_value()
+    {
+        //GIVEN
+        $expectedResults = 'cacheValue';
+        $author = 'Ezekiel';
+        $page = 25;
+        $size = 17;
+        $key = 'Ezekiel:25:17';
+        $tagName = 'author';
+        $this->mockCache->expects($this->once())
+            ->method('tags')
+            ->with($tagName)
+            ->willReturn($this->taggedCache);
+        $this->taggedCache->expects($this->once())
+            ->method('get')
+            ->with($key)
+            ->willReturn($expectedResults);
+        //WHEN
+        $actual = $this->underTest->findByAuthor($author, $page, $size);
+        //THEN
+        $this->assertEquals($expectedResults, $actual);
+    }
+
+    /**
+     * @test
+     */
+    public function findByAuthor_should_should_store_in_cache()
+    {
+        //GIVEN
+        $expectedResults = 'fromDB';
+        $author = 'Ezekiel';
+        $page = 25;
+        $size = 17;
+        $key = 'Ezekiel:25:17';
+        $tagName = 'author';
+        $this->mockCache->expects($this->once())
+            ->method('tags')
+            ->with($tagName)
+            ->willReturn($this->taggedCache);
+        $this->taggedCache->expects($this->once())
+            ->method('get')
+            ->with($key)
+            ->willReturn(null);
+        $this->mockRepository->expects($this->once())
+            ->method('findByAuthor')
+            ->with($author, $page, $size)
+            ->willReturn($expectedResults);
+        $this->taggedCache->expects($this->once())
+            ->method('put')
+            ->with($key, $expectedResults, 60);
+        //WHEN
+        $actual = $this->underTest->findByAuthor($author, $page, $size);
+        //THEN
+        $this->assertEquals($expectedResults, $actual);
+    }
+
+    /**
+     * @test
+     */
+    public function findBySlugAndPublishedDate_should_return_cache_value()
+    {
+        //GIVEN
+        $expectedResults = 'cacheValue';
+        $date = '2020-01-01';
+        $slug = 'what-is-love';
+        $key = 'what-is-love:2020-01-01';
+        $tagName = 'individualPost';
+        $this->mockCache->expects($this->once())
+            ->method('tags')
+            ->with($tagName)
+            ->willReturn($this->taggedCache);
+        $this->taggedCache->expects($this->once())
+            ->method('get')
+            ->with($key)
+            ->willReturn($expectedResults);
+        //WHEN
+        $actual = $this->underTest->findBySlugAndPublishedDate($slug, $date);
+        //THEN
+        $this->assertEquals($expectedResults, $actual);
+    }
+
+    /**
+     * @test
+     */
+    public function findBySlugAndPublishedDate_should_should_store_in_cache()
+    {
+        //GIVEN
+        $expectedResults = 'fromDB';
+        $date = '2020-01-01';
+        $slug = 'ezekiel';
+        $key = 'ezekiel:2020-01-01';
+        $tagName = 'individualPost';
+        $this->mockCache->expects($this->once())
+            ->method('tags')
+            ->with($tagName)
+            ->willReturn($this->taggedCache);
+        $this->taggedCache->expects($this->once())
+            ->method('get')
+            ->with($key)
+            ->willReturn(null);
+        $this->mockRepository->expects($this->once())
+            ->method('findBySlugAndPublishedDate')
+            ->with($slug, $date)
+            ->willReturn($expectedResults);
+        $this->taggedCache->expects($this->once())
+            ->method('put')
+            ->with($key, $expectedResults, 60);
+        //WHEN
+        $actual = $this->underTest->findBySlugAndPublishedDate($slug, $date);
+        //THEN
+        $this->assertEquals($expectedResults, $actual);
+    }
+
+    /**
+     * @test
+     */
+    public function deleteById_should_empty_cache()
+    {
+        //GIVEN
+        $id = 1;
+        $this->mockCache->expects($this->once())
+            ->method('tags')
+            ->with(['category', 'mostViewed', 'tag', 'author', 'allPublicPosts', 'individualPost'])
+            ->willReturn($this->taggedCache);
+        $this->mockRepository->expects($this->once())
+            ->method('deleteById')
+            ->with($id);
+        $this->taggedCache->expects($this->once())
+            ->method('flush');
+        //WHEN
+        $this->underTest->deleteById($id);
+        //THEN
+    }
+
+    /**
+     * @test
+     */
+    public function save_should_empty_cache()
+    {
+        //GIVEN
+        $post = $this->createMock(Post::class);
+        $this->mockCache->expects($this->once())
+            ->method('tags')
+            ->with(['category', 'mostViewed', 'tag', 'author', 'allPublicPosts', 'individualPost'])
+            ->willReturn($this->taggedCache);
+        $this->taggedCache->expects($this->once())
+            ->method('flush');
+        $this->mockRepository->expects($this->once())
+            ->method('save')
+            ->with($post);
+        //WHEN
+        $this->underTest->save($post);
+        //THEN
     }
 }

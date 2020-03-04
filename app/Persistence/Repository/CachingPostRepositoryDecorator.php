@@ -3,6 +3,7 @@
 
 namespace App\Persistence\Repository;
 
+use App\Persistence\Model\Post;
 use Illuminate\Cache\Repository;
 
 class CachingPostRepositoryDecorator extends abstractPostRepositoryDecorator
@@ -15,6 +16,8 @@ class CachingPostRepositoryDecorator extends abstractPostRepositoryDecorator
     const MOST_VIEWED = 'mostViewed';
     const CATEGORY = 'category';
     const TAG = 'tag';
+    const AUTHOR = 'author';
+    const INDIVIDUAL_POST = 'individualPost';
 
     public function __construct($postRepository, $cacheRepository)
     {
@@ -63,6 +66,52 @@ class CachingPostRepositoryDecorator extends abstractPostRepositoryDecorator
             use ($slug, $page, $size) {
                 return $this->postRepository->findByTag($slug, $page, $size);
             });
+    }
+
+    public function findByAuthor($slug, $page, $size)
+    {
+        $taggedCache = $this->cacheRepository->tags(self::AUTHOR);
+        $key = sprintf('%s:%s:%s', $slug, $page, $size);
+        return $this->cacheFuctionResult($taggedCache, $key,self::DEFAULT_CACHE_TTL, function()
+            use ($slug, $page, $size) {
+                return $this->postRepository->findByAuthor($slug, $page, $size);
+            });
+    }
+
+    public function findBySlugAndPublishedDate($slug, $date)
+    {
+        $taggedCache = $this->cacheRepository->tags(self::INDIVIDUAL_POST);
+        $key = sprintf('%s:%s', $slug, $date);
+        return $this->cacheFuctionResult($taggedCache, $key,self::DEFAULT_CACHE_TTL, function()
+            use ($slug, $date) {
+                return $this->postRepository->findBySlugAndPublishedDate($slug, $date);
+            });
+    }
+
+    public function deleteById($id)
+    {
+        $this->postRepository->deleteById($id);
+        $this->cacheRepository->tags([
+            'category',
+            'mostViewed',
+            'tag',
+            'author',
+            'allPublicPosts',
+            'individualPost'
+        ])->flush();
+    }
+
+    public function save(Post $post)
+    {
+        $this->postRepository->save($post);
+        $this->cacheRepository->tags([
+            'category',
+            'mostViewed',
+            'tag',
+            'author',
+            'allPublicPosts',
+            'individualPost'
+        ])->flush();
     }
 
     private function cacheFuctionResult(Repository $storage, $cacheKey, $ttl, callable $callable)
