@@ -55,7 +55,7 @@ class MainPageModelBuilder
     /**
      * @return Paginator
      */
-    public function getContent(): Paginator
+    public function getContent()
     {
         return $this->content;
     }
@@ -64,7 +64,7 @@ class MainPageModelBuilder
      * @param Paginator $content
      * @return MainPageModelBuilder
      */
-    public function setContent(Paginator $content): MainPageModelBuilder
+    public function setContent(Paginator $content)
     {
         $this->content = $content;
         return $this;
@@ -73,7 +73,7 @@ class MainPageModelBuilder
     /**
      * @return Menu
      */
-    public function getMenu(): Menu
+    public function getMenu()
     {
         return $this->menu;
     }
@@ -82,7 +82,7 @@ class MainPageModelBuilder
      * @param Menu $menu
      * @return MainPageModelBuilder
      */
-    public function setMenu(Menu $menu): MainPageModelBuilder
+    public function setMenu(Menu $menu)
     {
         $this->menu = $menu;
         return $this;
@@ -91,7 +91,7 @@ class MainPageModelBuilder
     /**
      * @return string
      */
-    public function getAnalyticsKey(): string
+    public function getAnalyticsKey()
     {
         return $this->analyticsKey;
     }
@@ -100,7 +100,7 @@ class MainPageModelBuilder
      * @param string $analyticsKey
      * @return MainPageModelBuilder
      */
-    public function setAnalyticsKey(string $analyticsKey): MainPageModelBuilder
+    public function setAnalyticsKey(string $analyticsKey)
     {
         $this->analyticsKey = $analyticsKey;
         return $this;
@@ -109,7 +109,7 @@ class MainPageModelBuilder
     /**
      * @return Link[]
      */
-    public function getTrending(): array
+    public function getTrending()
     {
         return $this->trending;
     }
@@ -118,7 +118,7 @@ class MainPageModelBuilder
      * @param Link[] $trending
      * @return MainPageModelBuilder
      */
-    public function setTrending(array $trending): MainPageModelBuilder
+    public function setTrending(array $trending)
     {
         $this->trending = $trending;
         return $this;
@@ -127,7 +127,7 @@ class MainPageModelBuilder
     /**
      * @return TagCloud
      */
-    public function getTagCloud(): TagCloud
+    public function getTagCloud()
     {
         return $this->tagCloud;
     }
@@ -136,7 +136,7 @@ class MainPageModelBuilder
      * @param TagCloud $tagCloud
      * @return MainPageModelBuilder
      */
-    public function setTagCloud(TagCloud $tagCloud): MainPageModelBuilder
+    public function setTagCloud(TagCloud $tagCloud)
     {
         $this->tagCloud = $tagCloud;
         return $this;
@@ -145,7 +145,7 @@ class MainPageModelBuilder
     /**
      * @return string
      */
-    public function getFacebookUrl(): string
+    public function getFacebookUrl()
     {
         return $this->facebookUrl;
     }
@@ -154,7 +154,7 @@ class MainPageModelBuilder
      * @param string $facebookUrl
      * @return MainPageModelBuilder
      */
-    public function setFacebookUrl(string $facebookUrl): MainPageModelBuilder
+    public function setFacebookUrl(string $facebookUrl)
     {
         $this->facebookUrl = $facebookUrl;
         return $this;
@@ -163,7 +163,7 @@ class MainPageModelBuilder
     /**
      * @return string
      */
-    public function getTwitterUrl(): string
+    public function getTwitterUrl()
     {
         return $this->twitterUrl;
     }
@@ -172,7 +172,7 @@ class MainPageModelBuilder
      * @param string $twitterUrl
      * @return MainPageModelBuilder
      */
-    public function setTwitterUrl(string $twitterUrl): MainPageModelBuilder
+    public function setTwitterUrl(string $twitterUrl)
     {
         $this->twitterUrl = $twitterUrl;
         return $this;
@@ -181,7 +181,7 @@ class MainPageModelBuilder
     /**
      * @return string
      */
-    public function getFeedsUrl(): string
+    public function getFeedsUrl()
     {
         return $this->feedsUrl;
     }
@@ -190,7 +190,7 @@ class MainPageModelBuilder
      * @param string $feedsUrl
      * @return MainPageModelBuilder
      */
-    public function setFeedsUrl(string $feedsUrl): MainPageModelBuilder
+    public function setFeedsUrl(string $feedsUrl)
     {
         $this->feedsUrl = $feedsUrl;
         return $this;
